@@ -36,7 +36,7 @@ pnpm dist:win     # nsis installer
 
 ComfyUI embeds the graph at queue time, so text produced while it runs (TextGenerate etc.) is not in the PNG.
 The companion custom node `SaveImageWithText` (“Save Image (+ final prompt)”, distributed separately as
-ComfyUI-SaveImageWithText) saves like SaveImage and adds two chunks:
+[ComfyUI-SaveImageWithText](https://github.com/LeviTheWeasel/ComfyUI-SaveImageWithText)) saves like SaveImage and adds two chunks:
 `final_prompt` (the text) and `final_prompt_source` (id of the node that produced it). The viewer substitutes
 that text for the source node's output, so the prompt shows exactly what the encoder received.
 
