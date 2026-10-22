@@ -1,0 +1,15 @@
+appId: app.aiimageviewer
+productName: AIImageViewer
+directories:
+  buildResources: build
+files:
+  - out/**
+  - package.json
+linux:
+  target: [AppImage, deb]
+  category: Graphics
+mac:
+  target: [dmg]
+  category: public.app-category.graphics-design
+win:
+  target: [nsis]
