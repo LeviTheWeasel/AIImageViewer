@@ -21,6 +21,8 @@ mac:
   category: public.app-category.graphics-design
   # Ad-hoc signature: required for Apple Silicon to run the app at all; not notarized.
   identity: '-'
+  # Hardened runtime only matters for notarization; with an ad-hoc signature it blocks loading Electron's frameworks.
+  hardenedRuntime: false
 win:
   target:
     - target: nsis
