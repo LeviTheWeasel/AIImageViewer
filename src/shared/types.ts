@@ -90,7 +90,7 @@ export interface ImageMeta {
   path: string
   width?: number
   height?: number
-  format: 'png' | 'other'
+  format: 'png' | 'jpeg' | 'webp' | 'other'
   hasPrompt: boolean
   hasWorkflow: boolean
   comfy?: ComfyInfo

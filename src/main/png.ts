@@ -1,5 +1,6 @@
 import { open } from 'node:fs/promises'
 import { inflateSync } from 'node:zlib'
+import { exifToChunks } from './exif'
 
 const SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 const TEXT_TYPES = new Set(['tEXt', 'iTXt', 'zTXt'])
@@ -37,6 +38,7 @@ export async function readPng(path: string): Promise<PngInfo> {
     if (!head.equals(SIGNATURE)) throw new Error('Not a PNG file')
 
     const info: PngInfo = { width: 0, height: 0, text: {} }
+    let exif: Record<string, string> = {}
     const hdr = Buffer.alloc(8)
     let pos = 8
     while (pos + 12 <= size) {
@@ -58,11 +60,18 @@ export async function readPng(path: string): Promise<PngInfo> {
         } catch {
           // A single broken chunk shouldn't hide the rest of the metadata.
         }
+      } else if (type === 'eXIf' && len <= MAX_TEXT_CHUNK) {
+        // Text chunks win over EXIF copies of the same key.
+        const d = Buffer.alloc(len)
+        await fh.read(d, 0, len, dataPos)
+        exif = exifToChunks(d)
       } else if (type === 'IEND') {
         break
       }
       pos = dataPos + len + 4 // + CRC
     }
+    // Text chunks win over EXIF copies of the same key.
+    info.text = { ...exif, ...info.text }
     return info
   } finally {
     await fh.close()

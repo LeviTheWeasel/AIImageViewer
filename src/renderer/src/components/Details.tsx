@@ -69,7 +69,7 @@ export default function Details({
         </>
       ) : (
         <div className="muted pad">
-          {meta.format === 'png' ? 'No ComfyUI metadata in this image.' : 'Only ComfyUI PNG metadata is supported so far.'}
+          No generation metadata in this image.
         </div>
       )}
 
@@ -83,7 +83,10 @@ function Badges({ meta }: { meta: ImageMeta }) {
     <div className="badges">
       {meta.hasWorkflow && <span className="badge wf">Workflow</span>}
       {meta.hasPrompt && !meta.hasWorkflow && <span className="badge api" title="Contains the API prompt only. ComfyUI can still load it, but without node layout, groups and notes.">API prompt only</span>}
-      {!meta.hasPrompt && !meta.hasWorkflow && <span className="badge none">No metadata</span>}
+      {meta.a1111 && (
+        <span className="badge params" title="Generation parameters as text (A1111 format)">Parameters</span>
+      )}
+      {!meta.hasPrompt && !meta.hasWorkflow && !meta.a1111 && <span className="badge none">No metadata</span>}
     </div>
   )
 }

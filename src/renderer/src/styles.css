@@ -192,6 +192,7 @@ mark { background: rgba(245, 197, 66, 0.3); color: inherit; border-radius: 2px; 
 }
 .badge.wf { background: rgba(111, 207, 151, 0.18); color: var(--pos); }
 .badge.api { background: rgba(232, 178, 74, 0.16); color: var(--warn); }
+.badge.params { background: rgba(124, 156, 255, 0.16); color: var(--accent); }
 .cell .badge { backdrop-filter: blur(6px); background-color: rgba(20, 20, 24, 0.7); }
 
 /* Details */

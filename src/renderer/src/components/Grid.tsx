@@ -136,6 +136,7 @@ const Cell = memo(function Cell({ file, size, index, active, picked, fav, onSele
         <div className="cell-badges">
           {meta.hasWorkflow ? <span className="badge wf" title="Has ComfyUI workflow">WF</span>
             : meta.hasPrompt ? <span className="badge api" title="API prompt only, no UI workflow">API</span>
+            : meta.a1111 ? <span className="badge params" title="Generation parameters as text (A1111 format)">TXT</span>
             : null}
         </div>
       )}

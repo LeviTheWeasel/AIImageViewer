@@ -5,7 +5,7 @@ import type { FileEntry, ImageMeta, IndexProgress, SearchDoc } from '@shared/typ
 import { readMeta } from './meta'
 
 /** Bump when the parser changes what ends up in a SearchDoc, to rebuild every cached entry. */
-const INDEX_VERSION = 1
+const INDEX_VERSION = 2
 const CONCURRENCY = 8
 const BATCH = 200
 
