@@ -1,15 +1,30 @@
 appId: app.aiimageviewer
 productName: AIImageViewer
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
 directories:
   buildResources: build
+  output: dist
 files:
   - out/**
   - package.json
 linux:
   target: [AppImage, deb]
   category: Graphics
+  executableName: aiimageviewer
+  syncDesktopName: true
+  icon: build/icons
+  synopsis: Viewer for AI-generated images and their ComfyUI metadata
 mac:
-  target: [dmg]
+  target:
+    - target: dmg
+      arch: [x64, arm64]
   category: public.app-category.graphics-design
+  # Ad-hoc signature: required for Apple Silicon to run the app at all; not notarized.
+  identity: '-'
 win:
-  target: [nsis]
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

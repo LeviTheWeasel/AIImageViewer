@@ -19,9 +19,16 @@ pnpm survey <folder> [--verbose]   # run the metadata parser over a folder, no U
 
 ```bash
 pnpm dist:linux   # AppImage + deb → dist/
-pnpm dist:mac     # dmg (run on macOS)
-pnpm dist:win     # nsis installer
+pnpm dist:mac     # dmg, x64 + arm64 (run on macOS)
+pnpm dist:win     # NSIS installer (on Linux needs wine)
 ```
+
+Release builds for all three platforms run on GitHub Actions: push a `v*` tag and
+`.github/workflows/release.yml` builds them and creates a draft release with the files attached.
+
+The builds aren't signed with a paid certificate. On macOS the app is ad-hoc signed, so the first launch
+needs right-click → Open (or `xattr -cr /Applications/AIImageViewer.app`); Windows SmartScreen asks for
+"More info → Run anyway".
 
 ## How the ComfyUI parser works (`src/shared/comfy.ts`)
 

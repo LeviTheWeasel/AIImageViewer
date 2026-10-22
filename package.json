@@ -3,8 +3,18 @@
   "productName": "AIImageViewer",
   "version": "0.1.0",
   "description": "Viewer for AI-generated images and their ComfyUI metadata",
-  "main": "./out/main/index.js",
+  "author": {
+    "name": "LeviTheWeasel",
+    "email": "140733150+LeviTheWeasel@users.noreply.github.com"
+  },
+  "homepage": "https://github.com/LeviTheWeasel/AIImageViewer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeviTheWeasel/AIImageViewer.git"
+  },
+  "desktopName": "aiimageviewer.desktop",
   "license": "MIT",
+  "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev --watch",
     "build": "electron-vite build",
@@ -16,13 +26,8 @@
     "dist:mac": "electron-vite build && electron-builder --mac",
     "dist:win": "electron-vite build && electron-builder --win"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "electron",
-      "esbuild"
-    ]
-  },
   "devDependencies": {
+    "@tanstack/react-virtual": "^3.14.22",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -30,13 +35,17 @@
     "electron": "^45.0.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^6.0.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.5"
   },
-  "dependencies": {
-    "@tanstack/react-virtual": "^3.14.22",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1"
-  }
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
+  },
+  "packageManager": "pnpm@10.34.5"
 }
