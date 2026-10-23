@@ -2,6 +2,12 @@
 
 Desktop viewer for AI-generated images and their metadata. Electron + React + TypeScript.
 
+![AIImageViewer: folder tree, thumbnail grid and the metadata panel with prompts, seed and models](docs/screenshot.png)
+
+![Fullscreen view with the metadata panel next to the image](docs/screenshot-fullscreen.png)
+
+**Download:** [latest release](https://github.com/LeviTheWeasel/AIImageViewer/releases/latest) for Windows, macOS and Linux.
+
 Reads **ComfyUI** metadata — positive/negative prompts per sampling stage (KSampler, FaceDetailer, guiders),
 checkpoint/UNet/CLIP/VAE, LoRAs with strengths, latent size, and whether the file carries a full UI workflow
 or only the API prompt — plus **A1111-format parameters** (A1111/Forge, "Save Image w/Metadata").
