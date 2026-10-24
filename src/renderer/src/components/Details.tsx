@@ -54,6 +54,7 @@ export default function Details({
               Save API prompt
             </button>
           )}
+          {Object.keys(meta.chunks).length > 0 && <CleanCopyButton path={file.path} />}
           <button onClick={() => window.api.reveal(file.path)}>Show in folder</button>
         </div>
       )}
@@ -318,3 +319,29 @@ function pretty(raw: string) {
 }
 
 const fmt = (n?: number) => (n === undefined ? '—' : String(Math.round(n * 100) / 100))
+
+function CleanCopyButton({ path }: { path: string }) {
+  const [state, setState] = useState<'idle' | 'busy' | 'saved' | 'error'>('idle')
+  const [error, setError] = useState('')
+  const run = async () => {
+    setState('busy')
+    const r = await window.api.saveCleanCopy(path)
+    if (r === 'saved') {
+      setState('saved')
+      setTimeout(() => setState('idle'), 2000)
+    } else if (r === 'canceled') setState('idle')
+    else {
+      setError(r)
+      setState('error')
+    }
+  }
+  return (
+    <button
+      onClick={run}
+      disabled={state === 'busy'}
+      title={state === 'error' ? error : 'Save a copy of the image with prompts, workflow and EXIF removed. The image itself is not re-encoded.'}
+    >
+      {state === 'saved' ? 'Saved ✓' : state === 'error' ? 'Couldn\'t save copy' : 'Save copy without metadata'}
+    </button>
+  )
+}

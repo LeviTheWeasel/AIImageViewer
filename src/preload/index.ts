@@ -16,6 +16,8 @@ const api = {
   meta: (path: string): Promise<ImageMeta> => ipcRenderer.invoke('meta', path),
   saveText: (suggestedName: string, text: string): Promise<boolean> =>
     ipcRenderer.invoke('save-text', suggestedName, text),
+  /** 'saved', 'canceled', or an error message. */
+  saveCleanCopy: (path: string): Promise<string> => ipcRenderer.invoke('save-clean-copy', path),
   favorites: (): Promise<string[]> => ipcRenderer.invoke('fav-list'),
   setFavorite: (paths: string[], on: boolean): Promise<string[]> => ipcRenderer.invoke('fav-set', paths, on),
   saveThumb: (path: string, version: string, data: ArrayBuffer): Promise<void> =>

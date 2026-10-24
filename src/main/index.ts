@@ -1,11 +1,12 @@
 import { app, BrowserWindow, dialog, ipcMain, nativeImage, net, protocol, shell } from 'electron'
 import { mkdir, readFile, readdir, rename, stat, unlink, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { basename, join, relative, resolve, sep } from 'node:path'
+import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { FileEntry, ScanResult, ThumbStats } from '@shared/types'
 import { readMeta } from './meta'
 import { indexFiles } from './indexer'
+import { stripMetadata } from './strip'
 
 const IMAGE_RE = /\.(png|jpe?g|webp)$/i
 const SCHEME = 'aiv'
@@ -205,6 +206,28 @@ app.whenReady().then(() => {
     if (r.canceled || !r.filePath) return false
     await writeFile(r.filePath, text, 'utf8')
     return true
+  })
+
+  // Saves a copy of the image with all metadata removed; the original is not touched unless the user picks it.
+  ipcMain.handle('save-clean-copy', async (e, p: string): Promise<'saved' | 'canceled' | string> => {
+    const abs = insideRoot(p)
+    const ext = extname(abs)
+    const stem = basename(abs, ext)
+    const win = BrowserWindow.fromWebContents(e.sender)!
+    let clean: Buffer
+    try {
+      clean = stripMetadata(await readFile(abs))
+    } catch (err) {
+      return err instanceof Error ? err.message : String(err)
+    }
+    const r = await dialog.showSaveDialog(win, {
+      defaultPath: join(dirname(abs), `${stem}_clean${ext}`),
+      filters: [{ name: 'Image', extensions: [ext.slice(1) || 'png'] }]
+    })
+    if (r.canceled || !r.filePath) return 'canceled'
+    await writeFile(r.filePath + '.tmp', clean)
+    await rename(r.filePath + '.tmp', r.filePath)
+    return 'saved'
   })
 
   ipcMain.handle('thumb-save', async (_e, p: string, version: string, data: ArrayBuffer) => {
