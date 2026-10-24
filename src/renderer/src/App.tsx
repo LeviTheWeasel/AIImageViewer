@@ -216,6 +216,21 @@ export default function App() {
     if (failed.length) window.alert(`Couldn't move to the trash:\n${failed.join('\n')}`)
   }, [])
 
+  const moveFiles = useCallback(async (paths: string[]) => {
+    if (!paths.length) return
+    const r = await window.api.moveToFolder(paths)
+    if (!r) return
+    if (r.moved.length) {
+      const map = new Map(r.moved.map((m) => [m.from, m.to]))
+      setFiles((prev) => prev.flatMap((f) => (map.has(f.path) ? (map.get(f.path) ? [map.get(f.path)!] : []) : [f])))
+      const first = r.moved[0].to
+      if (first && paths.length === 1) setCurrentPath(first.path) // keep showing the moved image
+      setPicked(new Set())
+      setFavs(new Set(await window.api.favorites()))
+    }
+    if (r.failed.length) window.alert(`Couldn't move:\n${r.failed.join('\n')}`)
+  }, [])
+
   const toggleFav = useCallback(
     async (paths: string[]) => {
       if (!paths.length) return
@@ -268,6 +283,9 @@ export default function App() {
       } else if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault()
         toggleFav(lightbox && current ? [current.path] : selectedPaths)
+      } else if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault()
+        moveFiles(lightbox && current ? [current.path] : selectedPaths)
       } else if (e.key === 'Delete') {
         e.preventDefault()
         trashFiles(lightbox && current ? [current.path] : selectedPaths)
@@ -278,7 +296,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [visible, selected, cols, lightbox, focus, toggleFav, trashFiles, selectedPaths, current])
+  }, [visible, selected, cols, lightbox, focus, toggleFav, trashFiles, moveFiles, selectedPaths, current])
 
   // Drop a folder onto the window to add it
   const onDrop = (e: React.DragEvent) => {
@@ -358,6 +376,9 @@ export default function App() {
           <button onClick={() => toggleFav([...picked])}>
             {allPickedFav ? '★ Remove from favorites' : '☆ Add to favorites'} <span className="muted">F</span>
           </button>
+          <button onClick={() => moveFiles([...picked])}>
+            Move to folder… <span className="muted">M</span>
+          </button>
           <button className="danger" onClick={() => trashFiles([...picked])}>
             Move to trash <span className="muted">Del</span>
           </button>
@@ -424,6 +445,7 @@ export default function App() {
               fav={favs.has(current.path)}
               onToggleFav={() => toggleFav([current.path])}
               onTrash={() => trashFiles([current.path])}
+              onMove={() => moveFiles([current.path])}
             />
           ) : <div className="empty small">Nothing selected</div>}
         </aside>
@@ -437,6 +459,7 @@ export default function App() {
           fav={favs.has(current.path)}
           onToggleFav={() => toggleFav([current.path])}
           onTrash={() => trashFiles([current.path])}
+          onMove={() => moveFiles([current.path])}
           onClose={() => setLightbox(false)}
           onNav={(d) => focus(selected + d)}
         />

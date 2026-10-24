@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
-import type { ImageMeta, IndexProgress, ScanResult, ThumbStats } from '@shared/types'
+import type { FileEntry, ImageMeta, IndexProgress, ScanResult, ThumbStats } from '@shared/types'
 
 const api = {
   pickFolder: (): Promise<string | null> => ipcRenderer.invoke('pick-folder'),
@@ -25,6 +25,12 @@ const api = {
   thumbStats: (): Promise<ThumbStats> => ipcRenderer.invoke('thumb-stats'),
   clearThumbs: (mode: 'all' | 'unused'): Promise<{ count: number; bytes: number }> =>
     ipcRenderer.invoke('thumb-clear', mode),
+  /** Asks for a folder and moves the files there; null if canceled. `to` is null when it left the opened folders. */
+  moveToFolder: (paths: string[]): Promise<{
+    dir: string
+    moved: { from: string; to: FileEntry | null }[]
+    failed: string[]
+  } | null> => ipcRenderer.invoke('move-to-folder', paths),
   /** Moves files to the system trash. */
   trash: (paths: string[]): Promise<{ done: string[]; failed: string[] }> => ipcRenderer.invoke('trash', paths),
   reveal: (path: string): Promise<void> => ipcRenderer.invoke('reveal', path),

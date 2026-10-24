@@ -1,5 +1,5 @@
 import { app, BrowserWindow, dialog, ipcMain, nativeImage, net, protocol, shell } from 'electron'
-import { mkdir, readFile, readdir, rename, stat, unlink, writeFile } from 'node:fs/promises'
+import { access, copyFile, constants as fsc, mkdir, readFile, readdir, rename, stat, unlink, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -273,6 +273,58 @@ app.whenReady().then(() => {
     for (const p of paths) if (typeof p === 'string') on ? set.add(p) : set.delete(p)
     saveFavorites(set)
     return [...set]
+  })
+
+  // Moves images into a folder the user picks. Never overwrites: a taken name gets " (2)", " (3)", …
+  let lastMoveDir: string | null = null
+  ipcMain.handle('move-to-folder', async (e, paths: string[]) => {
+    const srcs = paths.map(insideRoot)
+    const win = BrowserWindow.fromWebContents(e.sender)!
+    const r = await dialog.showOpenDialog(win, {
+      title: `Move ${srcs.length} ${srcs.length === 1 ? 'image' : 'images'} to…`,
+      buttonLabel: 'Move here',
+      defaultPath: lastMoveDir ?? dirname(srcs[0]),
+      properties: ['openDirectory', 'createDirectory']
+    })
+    if (r.canceled || !r.filePaths[0]) return null
+    const dir = resolve(r.filePaths[0])
+    lastMoveDir = dir
+
+    const exists = (p: string) => access(p).then(() => true, () => false)
+    const favs = await loadFavorites()
+    const moved: { from: string; to: FileEntry | null }[] = []
+    const failed: string[] = []
+    for (const src of srcs) {
+      if (dirname(src) === dir) continue
+      try {
+        const ext = extname(src)
+        const stem = basename(src, ext)
+        let dest = join(dir, basename(src))
+        for (let i = 2; await exists(dest); i++) dest = join(dir, `${stem} (${i})${ext}`)
+        try {
+          await rename(src, dest)
+        } catch (err) {
+          if ((err as NodeJS.ErrnoException).code !== 'EXDEV') throw err
+          // Different disk: copy, then remove the original.
+          await copyFile(src, dest, fsc.COPYFILE_EXCL)
+          await unlink(src)
+        }
+        if (favs.delete(src)) favs.add(dest)
+        const root = roots.find((x) => isInside(dest, x))
+        let entry: FileEntry | null = null
+        if (root) {
+          const st = await stat(dest)
+          entry = { path: dest, root, rel: relative(root, dest).split(sep).join('/'), name: basename(dest), size: st.size, mtime: st.mtimeMs }
+        }
+        moved.push({ from: src, to: entry })
+      } catch (err) {
+        failed.push(`${basename(src)}: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+    saveFavorites(favs)
+    const map = new Map(moved.map((m) => [m.from, m.to]))
+    lastScan = lastScan.flatMap((f) => (map.has(f.path) ? (map.get(f.path) ? [map.get(f.path)!] : []) : [f]))
+    return { dir, moved, failed }
   })
 
   // Moves images to the system trash (recoverable), never deletes outright.
