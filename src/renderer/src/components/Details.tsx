@@ -5,8 +5,15 @@ import { fileUrl, formatBytes, useMeta } from '../lib'
 import { HighlightContext, splitMatches } from '../search'
 
 export default function Details({
-  file, onOpen, showPreview = true, fav, onToggleFav
-}: { file: FileEntry; onOpen?: () => void; showPreview?: boolean; fav: boolean; onToggleFav: () => void }) {
+  file, onOpen, showPreview = true, fav, onToggleFav, onTrash
+}: {
+  file: FileEntry
+  onOpen?: () => void
+  showPreview?: boolean
+  fav: boolean
+  onToggleFav: () => void
+  onTrash: () => void
+}) {
   const meta = useMeta(file)
   const stem = file.name.replace(/\.[^.]+$/, '')
 
@@ -56,6 +63,9 @@ export default function Details({
           )}
           {Object.keys(meta.chunks).length > 0 && <CleanCopyButton path={file.path} />}
           <button onClick={() => window.api.reveal(file.path)}>Show in folder</button>
+          <button className="danger" onClick={onTrash} title="Move this image to the trash (Delete)">
+            Move to trash
+          </button>
         </div>
       )}
 

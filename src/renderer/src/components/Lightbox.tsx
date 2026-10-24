@@ -11,9 +11,10 @@ interface Props {
   onNav: (delta: number) => void
   fav: boolean
   onToggleFav: () => void
+  onTrash: () => void
 }
 
-export default function Lightbox({ file, index, total, onClose, onNav, fav, onToggleFav }: Props) {
+export default function Lightbox({ file, index, total, onClose, onNav, fav, onToggleFav, onTrash }: Props) {
   // Fit to window by default; click toggles 1:1 pixels.
   const [actual, setActual] = useState(false)
   const panelRef = useRef<HTMLElement>(null)
@@ -50,7 +51,7 @@ export default function Lightbox({ file, index, total, onClose, onNav, fav, onTo
       </div>
       <aside className="lb-panel" ref={panelRef}>
         <button className="lb-close" onClick={onClose} title="Close (Esc)">✕</button>
-        <Details file={file} showPreview={false} fav={fav} onToggleFav={onToggleFav} />
+        <Details file={file} showPreview={false} fav={fav} onToggleFav={onToggleFav} onTrash={onTrash} />
       </aside>
     </div>
   )

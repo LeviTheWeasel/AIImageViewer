@@ -25,6 +25,8 @@ const api = {
   thumbStats: (): Promise<ThumbStats> => ipcRenderer.invoke('thumb-stats'),
   clearThumbs: (mode: 'all' | 'unused'): Promise<{ count: number; bytes: number }> =>
     ipcRenderer.invoke('thumb-clear', mode),
+  /** Moves files to the system trash. */
+  trash: (paths: string[]): Promise<{ done: string[]; failed: string[] }> => ipcRenderer.invoke('trash', paths),
   reveal: (path: string): Promise<void> => ipcRenderer.invoke('reveal', path),
   startDrag: (path: string) => ipcRenderer.send('start-drag', path),
   /** Absolute path of a folder dropped onto the window. */

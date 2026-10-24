@@ -37,6 +37,8 @@ button:hover:not(:disabled), select:hover { border-color: #44444f; background: #
 button:disabled { opacity: 0.45; cursor: default; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #0d1020; font-weight: 600; }
 button.primary:hover { background: #93adff; }
+button.danger { color: #ff8a8a; }
+button.danger:hover:not(:disabled) { border-color: #7a3a3a; background: #3a2226; }
 button.small { padding: 1px 8px; font-size: 12px; }
 
 .app { display: flex; flex-direction: column; height: 100%; }

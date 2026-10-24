@@ -275,6 +275,23 @@ app.whenReady().then(() => {
     return [...set]
   })
 
+  // Moves images to the system trash (recoverable), never deletes outright.
+  ipcMain.handle('trash', async (_e, paths: string[]) => {
+    const done: string[] = []
+    const failed: string[] = []
+    for (const p of paths) {
+      try {
+        await shell.trashItem(insideRoot(p))
+        done.push(p)
+      } catch (err) {
+        failed.push(`${basename(p)}: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+    const gone = new Set(done)
+    lastScan = lastScan.filter((f) => !gone.has(f.path))
+    return { done, failed }
+  })
+
   ipcMain.handle('reveal', (_e, p: string) => shell.showItemInFolder(insideRoot(p)))
 
   // Native drag-out so an image can be dropped straight into ComfyUI or a file manager.
