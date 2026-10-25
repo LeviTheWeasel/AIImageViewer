@@ -20,6 +20,33 @@ or only the API prompt — plus **A1111-format parameters** (A1111/Forge, "Save 
 
 The file type is detected from its signature, not the extension.
 
+## Installing on Linux
+
+On Debian/Ubuntu, use the **`.deb`** from the release. It also installs the AppArmor profile that Ubuntu 24.04+
+needs before Electron apps may start their sandbox.
+
+The **AppImage** has no installer, so on Ubuntu 24.04+ it can exit right away with
+`The SUID sandbox helper binary was found, but is not configured correctly`. Ways around it:
+
+- Install the `.deb` instead.
+- Or extract the AppImage to a fixed place and give that path an AppArmor profile:
+
+  ```bash
+  ./AIImageViewer-*.AppImage --appimage-extract && mv squashfs-root ~/Applications/AIImageViewer
+  sudo tee /etc/apparmor.d/aiimageviewer >/dev/null <<EOF
+  abi <abi/4.0>,
+  include <tunables/global>
+  profile aiimageviewer $HOME/Applications/AIImageViewer/aiimageviewer flags=(unconfined) {
+    userns,
+    include if exists <local/aiimageviewer>
+  }
+  EOF
+  sudo apparmor_parser -r /etc/apparmor.d/aiimageviewer
+  ```
+
+  then run `~/Applications/AIImageViewer/aiimageviewer`. This also avoids the AppImage's need for `libfuse2`.
+- Or start it with `--no-sandbox` (works without root, but turns off Chromium's sandbox).
+
 ## Develop
 
 ```bash
